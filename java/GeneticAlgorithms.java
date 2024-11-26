@@ -8,9 +8,9 @@ public class GeneticAlgorithms
 
     private int blockSize; // Size of the board (NxN)
     private final int POPULATIONSIZE = 100; // Number of boards in each generation
-    private final int GENERATIONS = 5000; // Maximum number of generations
-    private final double MUTATIONRATE = 0.5; // Probability of mutation
-    private final int ELITESIZE = 5; // Number of top boards preserved in each generation
+    private final int GENERATIONS = 100000; // Maximum number of generations
+    private final double MUTATIONRATE = 0.01; // Probability of mutation
+    private final int ELITESIZE = 20; // Number of top boards preserved in each generation
 
     // Constructor to initialize the block size (board size)
     public GeneticAlgorithms(int sizeOfBlock) 
@@ -86,18 +86,30 @@ public class GeneticAlgorithms
      * @param parent2 The second parent board.
      * @return The child board.
      */
-    public List<Integer> Crossover(List<Integer> parent1, List<Integer> parent2) 
-    {
+    public List<Integer> Crossover(List<Integer> parent1, List<Integer> parent2) {
         Random rand = new Random();
-        int point = rand.nextInt(blockSize - 1) + 1; // Crossover point
-
-        List<Integer> child = new ArrayList<>();
-        child.addAll(parent1.subList(0, point)); // Take part from the first parent
-        child.addAll(parent2.subList(point, blockSize)); // Take the rest from the second parent
-
+        int point1 = rand.nextInt(blockSize - 1); // Random start
+        int point2 = rand.nextInt(blockSize - point1) + point1; // Random end
+    
+        List<Integer> child = new ArrayList<>(Collections.nCopies(blockSize, -1));
+        // Copy a segment from parent1
+        for (int i = point1; i <= point2; i++) {
+            child.set(i, parent1.get(i));
+        }
+    
+        // Fill remaining values from parent2 in order
+        int currentIndex = 0;
+        for (int value : parent2) {
+            if (!child.contains(value)) {
+                while (child.get(currentIndex) != -1) {
+                    currentIndex++;
+                }
+                child.set(currentIndex, value);
+            }
+        }
+    
         return child;
     }
-
     /**
      * Performs mutation on a board with a given mutation rate.
      *
@@ -105,17 +117,16 @@ public class GeneticAlgorithms
      * @param mutationRate The probability of mutation.
      * @return The mutated board.
      */
-    public List<Integer> Mutate(List<Integer> board, double mutationRate) 
-    {
+    public List<Integer> Mutate(List<Integer> board, double mutationRate) {
         Random rand = new Random();
-        if (rand.nextDouble() < mutationRate) 
-        {
+        if (rand.nextDouble() < mutationRate) {
             int i = rand.nextInt(blockSize);
             int j = rand.nextInt(blockSize);
-            Collections.swap(board, i, j); // Swap two queen positions
+            Collections.swap(board, i, j); // Swap ensures a valid permutation
         }
         return board;
     }
+    
 
     /**
      * Creates a new generation of boards.
