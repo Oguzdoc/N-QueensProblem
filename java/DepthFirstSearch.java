@@ -1,20 +1,21 @@
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-public class DepthFirstSearch 
-{
-    private int _boardSize = 0; // The size of the chessboard (number of rows and columns)
-    private int[] _solutions;  // Array to store the positions of queens in a valid solution
+public class DepthFirstSearch {
+
+    private int boardSize;              // The size of the chessboard (N x N)
+    private List<int[]> solutions;      // List to store all valid solutions
 
     /**
      * Constructor for DepthFirstSearch class.
-     * Initializes the board size and the solutions array.
+     * Initializes the board size and the solutions list.
      *
      * @param boardSize The size of the chessboard (N x N).
      */
-    public DepthFirstSearch(int boardSize) 
-    {
-        this._boardSize = boardSize;
-        this._solutions = new int[this._boardSize];
+    public DepthFirstSearch(int boardSize) {
+        this.boardSize = boardSize;
+        this.solutions = new ArrayList<>();
     }
 
     /**
@@ -22,20 +23,18 @@ public class DepthFirstSearch
      *
      * @param board The array representing queen positions where board[row] = column.
      */
-    private void DisplayBoard(int[] board) 
-    {
-        for (int row = 0; row < this._boardSize; row++) 
-        {
-            for (int col = 0; col < this._boardSize; col++) 
-            {
+    private void DisplayBoard(int[] board) {
+        for (int row = 0; row < this.boardSize; row++) {
+            for (int col = 0; col < this.boardSize; col++) {
                 // Print "Q" for a queen and "." for an empty space
                 if (board[row] == col)
-                    System.out.printf("Q ");
+                    System.out.print("Q ");
                 else
-                    System.out.printf(". ");
+                    System.out.print(". ");
             }
             System.out.println();
         }
+        System.out.println(); // Separate solutions
     }
 
     /**
@@ -46,10 +45,8 @@ public class DepthFirstSearch
      * @param col   The column to check.
      * @return true if the position is safe, false otherwise.
      */
-    private boolean IsSafe(int[] board, int row, int col) 
-    {
-        for (int i = 0; i < row; i++) 
-        {
+    private boolean IsSafe(int[] board, int row, int col) {
+        for (int i = 0; i < row; i++) {
             // Check for column conflicts
             if (board[i] == col)
                 return false;
@@ -66,41 +63,42 @@ public class DepthFirstSearch
      *
      * @param board The current state of the board.
      * @param row   The current row to place a queen.
-     * @return true if a solution is found, false otherwise.
      */
-    private boolean DepthFirstSearchAlgorithm(int[] board, int row) 
-    {
+    private void DepthFirstSearchAlgorithm(int[] board, int row) {
         // Base case: all queens are placed successfully
-        if (row == this._boardSize) 
-        {
-            this._solutions = board; // Store the solution
-            return true;
+        if (row == this.boardSize) {
+            solutions.add(board.clone()); // Store the solution
+            return;
         }
 
         // Try placing a queen in each column of the current row
-        for (int col = 0; col < this._boardSize; col++) 
-        {
-            if (IsSafe(board, row, col)) 
-            {
+        for (int col = 0; col < this.boardSize; col++) {
+            if (IsSafe(board, row, col)) {
                 board[row] = col; // Place the queen in this column
-                // Recur to place the next queen
-                if (DepthFirstSearchAlgorithm(board, row + 1))
-                    return true;
+                DepthFirstSearchAlgorithm(board, row + 1); // Recur to place the next queen
                 board[row] = -1; // Backtrack (remove the queen)
             }
         }
-        return false; // No valid positions in this row
     }
 
     /**
-     * Solves the N-Queens problem using DFS and displays the solution.
+     * Solves the N-Queens problem using DFS and displays all solutions.
      */
-    public void Solve() 
-    {
-        int[] board = new int[this._boardSize]; // Array to represent the board (column positions for each row)
+    public void Solve() {
+        int[] board = new int[this.boardSize]; // Array to represent the board (column positions for each row)
         Arrays.fill(board, -1); // Initialize with -1 (no queen placed)
 
         DepthFirstSearchAlgorithm(board, 0); // Start DFS from row 0
-        DisplayBoard(this._solutions); // Display the solution
+        
+        System.out.println("Total Solutions: " + solutions.size());
+        for (int[] solution : solutions) {
+            DisplayBoard(solution); // Display each solution
+        }
+    }
+
+    public static void main(String[] args) {
+        // Example usage: Solve for a 4x4 chessboard
+        DepthFirstSearch dfs = new DepthFirstSearch(4);
+        dfs.Solve();
     }
 }
