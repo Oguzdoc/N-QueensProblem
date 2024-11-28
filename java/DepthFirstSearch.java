@@ -95,10 +95,4 @@ public class DepthFirstSearch {
             DisplayBoard(solution); // Display each solution
         }
     }
-
-    public static void main(String[] args) {
-        // Example usage: Solve for a 4x4 chessboard
-        DepthFirstSearch dfs = new DepthFirstSearch(4);
-        dfs.Solve();
-    }
 }
